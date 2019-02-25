@@ -45,7 +45,6 @@ class MyHomePage extends StatelessWidget {
               child: CupertinoTextField(
                 placeholder: "Input banknotes splited by ,",
                 onChanged: (text){
-
                   banknotes = text.split(",").map((banknote){
                     return int.parse(banknote);
                   }).toList();
@@ -59,6 +58,7 @@ class MyHomePage extends StatelessWidget {
                   onPressed: (){
                     if(banknotes != null && money != null)
                       bag(banknotes : banknotes, money : money, context : context);
+                    _showError(context);
                   }),
             ),
           ],
@@ -71,13 +71,13 @@ class MyHomePage extends StatelessWidget {
 
     banknotes.toSet();
     banknotes.sort((a,b) => b - a);
-    var checksum = banknotes.reduce((value, element) => value + element);
+    final checksum = banknotes.reduce((value, element) => value + element);
 
-    final counterMass = {};
-    
+    final counterMap = {};
+
     if(checksum <= money){
       for(int banknote in banknotes){
-        counterMass[banknote] = 1;
+        counterMap[banknote] = 1;
       }
       money -= checksum;
 
@@ -89,12 +89,13 @@ class MyHomePage extends StatelessWidget {
           money -= banknotes[i];
           counter++;
         }
-        counterMass[banknotes[i]]+=counter;
+        counterMap[banknotes[i]]+=counter;
       }
     }
     if(context != null)
-      _showDialog(context, counterMass);
-    return counterMass;
+      _showDialog(context, counterMap);
+    ///for test
+    return counterMap;
   }
 
   _showDialog(context, text) {
