@@ -8,7 +8,14 @@ class MyApp extends StatelessWidget {
 
   build(context) {
     return MaterialApp(
-      theme: ThemeData.dark(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: Colors.green,
+        buttonColor: Colors.green,
+        primarySwatch: Colors.green,
+        backgroundColor: Colors.green,
+        accentColor: Colors.green
+      ),
       home: MyHomePage(),
     );
   }
@@ -18,6 +25,18 @@ class MyHomePage extends StatelessWidget {
 
   var money;
   var banknotes;
+
+  final banknotesViews = [
+    "1",
+    "5",
+    "10",
+    "20",
+    "50",
+    "100",
+    "500",
+    "1000",
+    "5000",
+  ];
 
   build(context) {
 
@@ -29,11 +48,12 @@ class MyHomePage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
-              child: Text("Wrike Bankomat", style: TextStyle(fontSize: 16)),
+              child: Text("Wrike Bankomat", style: TextStyle(fontSize: 24)),
             ),
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
               child: CupertinoTextField(
+                decoration: BoxDecoration(border: Border.all(color: Colors.green)),
                 placeholder: "input money",
                 onChanged: (text){
                   money = int.parse(text);
@@ -42,7 +62,19 @@ class MyHomePage extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
+//              child: GridView(
+//                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+//                children: banknotesViews.map((value){
+//                  return RaisedButton(
+//                      child: Text(value, style: TextStyle(color: Colors.white)),
+//                      onPressed: (){
+//                        return null;
+//                      });
+//                }).toList(),
+//              ),
+
               child: CupertinoTextField(
+                decoration: BoxDecoration(border: Border.all(color: Colors.green)),
                 placeholder: "Input banknotes splited by ,",
                 onChanged: (text){
                   banknotes = text.split(",").map((banknote){
@@ -54,11 +86,13 @@ class MyHomePage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
               child: RaisedButton(
-                  child: Text("Give ma money!"),
+                  child: Text("Give ma money!", style: TextStyle(color: Colors.white)),
                   onPressed: (){
-                    if(banknotes != null && money != null)
+                    if(banknotes != null && money != null && money > 0){
                       bag(banknotes : banknotes, money : money, context : context);
-                    _showError(context);
+                    }else{
+                      _showError(context);
+                    }
                   }),
             ),
           ],
