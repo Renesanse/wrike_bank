@@ -2,7 +2,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bank/main.dart';
 
-void main() {
+main() {
   final app = MyHomePage();
   test("100", () {
     var money = 100;

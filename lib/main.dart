@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:math';
 
-void main() => runApp(MyApp());
+main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
 
@@ -67,18 +67,14 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  bag({List banknotes, money, context}){
+  bag({List<int> banknotes, money, context}){
+
     banknotes.toSet();
-    print(banknotes);
+    banknotes.sort((a,b) => b - a);
+    var checksum = banknotes.reduce((value, element) => value + element);
 
-    banknotes.sort((a,b) => b.compareTo(a));
     final counterMass = {};
-
-    var checksum = 0;
-    banknotes.forEach((banknote){
-      checksum += banknote;
-    });
-
+    
     if(checksum <= money){
       for(int banknote in banknotes){
         counterMass[banknote] = 1;
