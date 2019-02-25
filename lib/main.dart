@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:math';
 
 void main() => runApp(MyApp());
 
@@ -28,7 +29,7 @@ class MyHomePage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
-              child: Text("Wrike Bankomat", style: TextStyle(fontSize: 16),),
+              child: Text("Wrike Bankomat", style: TextStyle(fontSize: 16)),
             ),
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
@@ -42,8 +43,9 @@ class MyHomePage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
               child: CupertinoTextField(
-                placeholder: "input banknotes splited by ,",
+                placeholder: "Input banknotes splited by ,",
                 onChanged: (text){
+
                   banknotes = text.split(",").map((banknote){
                     return int.parse(banknote);
                   }).toList();
@@ -55,7 +57,7 @@ class MyHomePage extends StatelessWidget {
               child: RaisedButton(
                   child: Text("Give ma money!"),
                   onPressed: (){
-                    if(banknotes != null && money!=null && money > 0)
+                    if(banknotes != null && money != null)
                       bag(banknotes : banknotes, money : money, context : context);
                   }),
             ),
@@ -66,26 +68,40 @@ class MyHomePage extends StatelessWidget {
   }
 
   bag({List banknotes, money, context}){
+    banknotes.toSet();
+    print(banknotes);
+
     banknotes.sort((a,b) => b.compareTo(a));
     final counterMass = {};
-    for(int i in banknotes){
-      var counter = 0;
-      do{
-        money -= i;
-        if(money < 0){
-          money += i;
-          break;
+
+    var checksum = 0;
+    banknotes.forEach((banknote){
+      checksum += banknote;
+    });
+
+    if(checksum <= money){
+      for(int banknote in banknotes){
+        counterMass[banknote] = 1;
+      }
+      money -= checksum;
+
+      for(int i = 0; i < banknotes.length; i++){
+        var counter = 0;
+        while(money >= banknotes[i]){
+          if(money <= banknotes[i] && i != banknotes.length -1)
+            break;
+          money -= banknotes[i];
+          counter++;
         }
-        counter++;
-        counterMass[i] = counter;
-      }while(money > i);
+        counterMass[banknotes[i]]+=counter;
+      }
     }
     if(context != null)
       _showDialog(context, counterMass);
     return counterMass;
   }
 
-  void _showDialog(context, text) {
+  _showDialog(context, text) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -95,6 +111,26 @@ class MyHomePage extends StatelessWidget {
           actions: [
             FlatButton(
               child: Text("Thanks!"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  _showError(context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Attention!"),
+          content: Text("Check all fileds before continue"),
+          actions: [
+            FlatButton(
+              child: Text("ok"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
