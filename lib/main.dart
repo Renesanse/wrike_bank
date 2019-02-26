@@ -1,28 +1,24 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:math';
+import 'package:flutter/material.dart';
 
 main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-
   build(context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: Colors.green,
-        buttonColor: Colors.green,
-        primarySwatch: Colors.green,
-        backgroundColor: Colors.green,
-        accentColor: Colors.green
-      ),
+          primaryColor: Colors.green,
+          buttonColor: Colors.green,
+          primarySwatch: Colors.green,
+          backgroundColor: Colors.green,
+          accentColor: Colors.green),
       home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-
   var money;
   var banknotes;
 
@@ -39,10 +35,10 @@ class MyHomePage extends StatelessWidget {
   ];
 
   build(context) {
-
     return Scaffold(
-      body: Center(
-        child: ListView(
+        resizeToAvoidBottomPadding: false,
+        body: Center(
+            child: ListView(
           padding: EdgeInsets.all(16.0),
           shrinkWrap: true,
           children: [
@@ -53,32 +49,23 @@ class MyHomePage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
               child: CupertinoTextField(
-                decoration: BoxDecoration(border: Border.all(color: Colors.green)),
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.green)),
                 placeholder: "input money",
-                onChanged: (text){
+                onChanged: (text) {
                   money = int.parse(text);
                 },
               ),
             ),
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
-//              child: GridView(
-//                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-//                children: banknotesViews.map((value){
-//                  return RaisedButton(
-//                      child: Text(value, style: TextStyle(color: Colors.white)),
-//                      onPressed: (){
-//                        return null;
-//                      });
-//                }).toList(),
-//              ),
-
               child: CupertinoTextField(
-                decoration: BoxDecoration(border: Border.all(color: Colors.green)),
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.green)),
                 placeholder: "Input banknotes splited by ,",
-                onChanged: (text){
-                  banknotes = text.split(",").map((banknote){
-                    return int.parse(banknote);
+                onChanged: (text) {
+                  banknotes = text.split(",").map((banknote) {
+                    return int.parse(banknote).abs();
                   }).toList();
                 },
               ),
@@ -86,50 +73,49 @@ class MyHomePage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
               child: RaisedButton(
-                  child: Text("Give ma money!", style: TextStyle(color: Colors.white)),
-                  onPressed: (){
-                    if(banknotes != null && money != null && money > 0){
-                      bag(banknotes : banknotes, money : money, context : context);
-                    }else{
-                      _showError(context);
+                  child: Text("Give ma money!",
+                      style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    if (banknotes != null && money != null && money > 0) {
+                      bag(banknotes: banknotes, money: money, context: context);
                     }
                   }),
             ),
           ],
-        )
-      )
-    );
+        )));
   }
 
-  bag({List<int> banknotes, money, context}){
+  bag({List<int> banknotes, money, context}) {
+    try {
+      banknotes.toSet();
+      banknotes.sort((a, b) => b - a);
+      final checksum = banknotes.reduce((value, element) => value + element);
 
-    banknotes.toSet();
-    banknotes.sort((a,b) => b - a);
-    final checksum = banknotes.reduce((value, element) => value + element);
+      final counterMap = {};
 
-    final counterMap = {};
+      if (checksum <= money) {
+        banknotes.forEach((banknote) {
+          counterMap[banknote] = 1;
+        });
 
-    if(checksum <= money){
-      for(int banknote in banknotes){
-        counterMap[banknote] = 1;
-      }
-      money -= checksum;
+        money -= checksum;
 
-      for(int i = 0; i < banknotes.length; i++){
-        var counter = 0;
-        while(money >= banknotes[i]){
-          if(money <= banknotes[i] && i != banknotes.length -1)
-            break;
-          money -= banknotes[i];
-          counter++;
+        for (int i = 0; i < banknotes.length; i++) {
+          var counter = 0;
+          while (money >= banknotes[i]) {
+            money -= banknotes[i];
+            counter++;
+          }
+          counterMap[banknotes[i]] += counter;
         }
-        counterMap[banknotes[i]]+=counter;
       }
+      if (context != null) _showDialog(context, counterMap);
+
+      ///for test
+      return counterMap;
+    } catch (e) {
+      _showDialog(context, "error");
     }
-    if(context != null)
-      _showDialog(context, counterMap);
-    ///for test
-    return counterMap;
   }
 
   _showDialog(context, text) {
@@ -138,30 +124,11 @@ class MyHomePage extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Wrike Bankomat"),
-          content: Text("You have got: $text".replaceAll("{", "").replaceAll("}", "")),
+          content: Text(
+              "You have got: $text".replaceAll("{", "").replaceAll("}", "")),
           actions: [
             FlatButton(
               child: Text("Thanks!"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  _showError(context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Attention!"),
-          content: Text("Check all fileds before continue"),
-          actions: [
-            FlatButton(
-              child: Text("ok"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
