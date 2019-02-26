@@ -76,7 +76,7 @@ class MyHomePage extends StatelessWidget {
                   child: Text("Give ma money!",
                       style: TextStyle(color: Colors.white)),
                   onPressed: () {
-                    if (banknotes != null && money != null && money > 0) {
+                    if (banknotes != null && money.runtimeType == int && money > 0) {
                       bag(banknotes: banknotes, money: money, context: context);
                     }
                   }),
@@ -86,36 +86,28 @@ class MyHomePage extends StatelessWidget {
   }
 
   bag({List<int> banknotes, money, context}) {
-    try {
-      banknotes.toSet();
-      banknotes.sort((a, b) => b - a);
-      final checksum = banknotes.reduce((value, element) => value + element);
 
-      final counterMap = {};
-
-      if (checksum <= money) {
-        banknotes.forEach((banknote) {
-          counterMap[banknote] = 1;
-        });
-
-        money -= checksum;
-
-        for (int i = 0; i < banknotes.length; i++) {
-          var counter = 0;
-          while (money >= banknotes[i]) {
-            money -= banknotes[i];
-            counter++;
-          }
-          counterMap[banknotes[i]] += counter;
+    banknotes.toSet();
+    banknotes.sort((a, b) => b - a);
+    final checksum = banknotes.reduce((value, element) => value + element);
+    final counterMap = {};
+    if (checksum <= money) {
+      banknotes.forEach((banknote) {
+        counterMap[banknote] = 1;
+      });
+      money -= checksum;
+      for (int i = 0; i < banknotes.length; i++) {
+        var counter = 0;
+        while (money >= banknotes[i]) {
+          money -= banknotes[i];
+          counter++;
         }
+        counterMap[banknotes[i]] += counter;
       }
-      if (context != null) _showDialog(context, counterMap);
-
-      ///for test
-      return counterMap;
-    } catch (e) {
-      _showDialog(context, "error");
     }
+    if (context != null) _showDialog(context, counterMap);
+    ///for test
+    return counterMap;
   }
 
   _showDialog(context, text) {
